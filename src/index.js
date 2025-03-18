@@ -33,6 +33,22 @@ class Dog extends Creature {
     }
 }
 
+class Trasher extends Dog {
+    constructor() {
+        super('Громила', 5);
+
+        this.modifyTakenDamage = function (value, fromCard, gameContext, continuation) {
+            this.view.signalAbility(() => continuation(value - 1));
+        };
+
+        this.getDescriptions = function () {
+            const baseDescriptions = Card.prototype.getDescriptions.call(this);
+            const abilityDescription = "Способность: Уменьшает урон на 1.";
+            return [...baseDescriptions, abilityDescription];
+        };
+    }
+}
+
 class Gatling extends Creature {
     constructor(name = 'Гатлинг', power = 6) {
         super(name, power);
@@ -55,22 +71,6 @@ class Gatling extends Creature {
         });
 
         taskQueue.continueWith(continuation);
-    }
-}
-
-class Trasher extends Dog {
-    constructor() {
-        super('Громила', 5);
-
-        this.modifyTakenDamage = function (value, fromCard, gameContext, continuation) {
-            this.view.signalAbility(() => continuation(value - 1));
-        };
-
-        this.getDescriptions = function () {
-            const baseDescriptions = Card.prototype.getDescriptions.call(this);
-            const abilityDescription = "Способность: Уменьшает урон на 1.";
-            return [...baseDescriptions, abilityDescription];
-        };
     }
 }
 
@@ -116,6 +116,36 @@ class Lad extends Dog {
         }
 
         return baseDescriptions;
+    }
+}
+
+class Rogue extends Creature {
+    constructor(name = 'Изгой', power = 2) {
+        super(name, power);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const { oppositePlayer, updateView } = gameContext;
+        const targetCard = oppositePlayer.table.find(card => card && card !== this);
+
+        if (targetCard) {
+            const targetPrototype = Object.getPrototypeOf(targetCard);
+
+            ['modifyDealedDamageToCreature', 'modifyDealedDamageToPlayer', 'modifyTakenDamage'].forEach(prop => {
+                if (targetPrototype.hasOwnProperty(prop)) {
+                    this[prop] = targetPrototype[prop];
+                    delete targetPrototype[prop];
+                }
+            });
+
+            oppositePlayer.table.forEach(card => {
+                if (card && Object.getPrototypeOf(card) === targetPrototype) {
+                    updateView(card);
+                }
+            });
+        }
+
+        continuation();
     }
 }
 
