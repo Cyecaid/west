@@ -58,6 +58,23 @@ class Gatling extends Creature {
     }
 }
 
+class Trasher extends Dog {
+    constructor() {
+        super('Громила', 5);
+
+        this.modifyTakenDamage = function (value, fromCard, gameContext, continuation) {
+            this.view.signalAbility(() => continuation(value - 1));
+        };
+
+        this.getDescriptions = function () {
+            const baseDescriptions = Card.prototype.getDescriptions.call(this);
+            const abilityDescription = "Способность: Уменьшает урон на 1.";
+            return [...baseDescriptions, abilityDescription];
+        };
+    }
+
+
+}
 // Отвечает является ли карта уткой.
 function isDuck(card) {
     return card && card.quacks && card.swims;
@@ -87,12 +104,14 @@ const seriffStartDeck = [
     new Duck(),
     new Duck(),
     new Duck(),
+    new Duck(),
     new Gatling(),
 ];
 const banditStartDeck = [
     new Trasher(),
     new Dog(),
     new Dog(),
+    new Trasher(),
 ];
 
 
