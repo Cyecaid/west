@@ -149,6 +149,20 @@ class Rogue extends Creature {
     }
 }
 
+class PseudoDuck extends Dog {
+    constructor(name = 'Псевдоутка', power = 3) {
+        super(name, power);
+    }
+
+    quacks() {
+        console.log('quacks');
+    }
+
+    swims() {
+        console.log('float: both;');
+    }
+}
+
 
 // Отвечает является ли карта уткой.
 function isDuck(card) {
@@ -177,12 +191,10 @@ function getCreatureDescription(card) {
 
 const seriffStartDeck = [
     new Duck(),
-    new Duck(),
-    new Duck(),
-    new Duck(),
 ];
 const banditStartDeck = [
-    new Trasher(),
+    new PseudoDuck(),
+    new Dog(),
 ];
 
 
