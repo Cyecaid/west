@@ -188,13 +188,54 @@ function getCreatureDescription(card) {
     return 'Существо';
 }
 
+class Nemo extends Creature {
+    constructor(name = 'Немо', power = 4) {
+        super(name, power);
+        this.hasStolen = false;
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        if (this.hasStolen) {
+            continuation();
+            return;
+        }
+
+        const { oppositePlayer, updateView } = gameContext;
+        const targetCard = oppositePlayer.table.find(card => card && card !== this);
+
+        if (targetCard) {
+            const targetPrototype = Object.getPrototypeOf(targetCard);
+            const oldPrototype = Object.getPrototypeOf(this);
+
+            Object.setPrototypeOf(this, targetPrototype);
+            this.hasStolen = true;
+
+            if (this.doBeforeAttack) {
+                this.doBeforeAttack(gameContext, () => {
+                    updateView(this);
+                    updateView(targetCard);
+                    continuation();
+                });
+            } else {
+                updateView(this);
+                updateView(targetCard);
+                continuation();
+            }
+
+            Object.setPrototypeOf(this, oldPrototype);
+        } else {
+            continuation();
+        }
+    }
+}
+
 
 const seriffStartDeck = [
-    new Duck(),
+    new Nemo(),
 ];
 const banditStartDeck = [
     new PseudoDuck(),
-    new Dog(),
+    new Duck(),
 ];
 
 
