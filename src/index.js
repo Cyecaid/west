@@ -6,6 +6,15 @@ import SpeedRate from './SpeedRate.js';
 class Creature extends Card {
     constructor(name, maxPower, image) {
         super(name, maxPower, image);
+        this._currentPower = maxPower;
+    }
+
+    get currentPower() {
+        return this._currentPower;
+    }
+
+    set currentPower(value) {
+        this._currentPower = Math.min(value, this.maxPower);
     }
 
     getDescriptions() {
@@ -24,6 +33,28 @@ class Duck extends Creature {
 
     swims() {
         console.log('float: both;');
+    }
+}
+
+class Brewer extends Duck {
+    constructor() {
+        super('Пивовар', 2);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const { currentPlayer, oppositePlayer } = gameContext;
+        const allCards = currentPlayer.table.concat(oppositePlayer.table);
+
+        allCards.forEach(card => {
+            if (isDuck(card)) {
+                card.maxPower += 1;
+                card.currentPower += 2;
+                this.view.signalHeal();
+                card.updateView();
+            }
+        });
+
+        continuation();
     }
 }
 
@@ -231,6 +262,9 @@ class Nemo extends Creature {
 
 
 const seriffStartDeck = [
+    new Duck(),
+    new Duck(),
+    new Duck(),
     new Nemo(),
 ];
 const banditStartDeck = [
