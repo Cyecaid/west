@@ -36,28 +36,6 @@ class Duck extends Creature {
     }
 }
 
-class Brewer extends Duck {
-    constructor() {
-        super('Пивовар', 2);
-    }
-
-    doBeforeAttack(gameContext, continuation) {
-        const { currentPlayer, oppositePlayer } = gameContext;
-        const allCards = currentPlayer.table.concat(oppositePlayer.table);
-
-        allCards.forEach(card => {
-            if (isDuck(card)) {
-                card.maxPower += 1;
-                card.currentPower += 2;
-                this.view.signalHeal();
-                card.updateView();
-            }
-        });
-
-        continuation();
-    }
-}
-
 class Dog extends Creature {
     constructor(name = 'Пес-бандит', power = 3) {
         super(name, power);
@@ -180,6 +158,28 @@ class Rogue extends Creature {
     }
 }
 
+class Brewer extends Duck {
+    constructor() {
+        super('Пивовар', 2);
+    }
+
+    doBeforeAttack(gameContext, continuation) {
+        const { currentPlayer, oppositePlayer } = gameContext;
+        const allCards = currentPlayer.table.concat(oppositePlayer.table);
+
+        allCards.forEach(card => {
+            if (isDuck(card)) {
+                card.maxPower += 1;
+                card.currentPower += 2;
+                this.view.signalHeal();
+                card.updateView();
+            }
+        });
+
+        continuation();
+    }
+}
+
 class PseudoDuck extends Dog {
     constructor(name = 'Псевдоутка', power = 3) {
         super(name, power);
@@ -192,31 +192,6 @@ class PseudoDuck extends Dog {
     swims() {
         console.log('float: both;');
     }
-}
-
-
-// Отвечает является ли карта уткой.
-function isDuck(card) {
-    return card && card.quacks && card.swims;
-}
-
-// Отвечает является ли карта собакой.
-function isDog(card) {
-    return card instanceof Dog;
-}
-
-// Дает описание существа по схожести с утками и собаками
-function getCreatureDescription(card) {
-    if (isDuck(card) && isDog(card)) {
-        return 'Утка-Собака';
-    }
-    if (isDuck(card)) {
-        return 'Утка';
-    }
-    if (isDog(card)) {
-        return 'Собака';
-    }
-    return 'Существо';
 }
 
 class Nemo extends Creature {
@@ -258,6 +233,31 @@ class Nemo extends Creature {
             continuation();
         }
     }
+}
+
+
+// Отвечает является ли карта уткой.
+function isDuck(card) {
+    return card && card.quacks && card.swims;
+}
+
+// Отвечает является ли карта собакой.
+function isDog(card) {
+    return card instanceof Dog;
+}
+
+// Дает описание существа по схожести с утками и собаками
+function getCreatureDescription(card) {
+    if (isDuck(card) && isDog(card)) {
+        return 'Утка-Собака';
+    }
+    if (isDuck(card)) {
+        return 'Утка';
+    }
+    if (isDog(card)) {
+        return 'Собака';
+    }
+    return 'Существо';
 }
 
 
